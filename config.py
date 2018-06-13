@@ -1,0 +1,11 @@
+# Network Configuration File #
+targetIPDestination="192.168.1.1"
+SHORT_PAYLOAD="X"
+LONG_PAYLOAD="ABCDEFGX"
+ROUTER_MAC = "00:00:00:00:00:01"
+
+# Victim Information
+VICTIM_IP = "192.168.1.17"
+VICTIM_MAC = "00:00:00:00:00:02"
+ATTACKER_MAC = "00:00:00:00:00:03"
+

