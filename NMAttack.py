@@ -4,6 +4,7 @@ from scapy.volatile import RandByte
 import fileinput
 import sys
 import config
+import threading
 
 def neg():
     print("test")
@@ -84,11 +85,19 @@ def RIPPoisoning():
     packet = IP(dst="224.0.0.9", ttl=1) / UDP(dport=520, sport=520) / RIP(cmd=2, version=2)/RIPEntry()
     return packet
 
+def subSweep(ip):
+    packet = IPSweep(ip)
+    send(packet)
+
 # Higher Level Runners #
 def RunIPSweep(): 
-    packet=IPSweep(config.targetIPDestination)
-    print("packet built: " + str(packet))
-    send(packet, inter=0.005)
+    for i in range(40, 70):
+        for j in range(0, 55):
+            t=threading.Timer(0.05,subSweep,["192.168."+str(i)+"."+str(j)])
+            t.start()
+
+
+    #send(packet, inter=0.005)
     return "IPSweep"
 def RunPortScan(): 
     packet = PortScan(config.targetIPDestination)
