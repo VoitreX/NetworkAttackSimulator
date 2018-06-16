@@ -5,6 +5,7 @@ import fileinput
 import sys
 import config
 import threading
+import time
 
 def neg():
     print("test")
@@ -95,6 +96,7 @@ def RunIPSweep():
         for j in range(0, 55):
             t=threading.Timer(0.05,subSweep,["192.168."+str(i)+"."+str(j)])
             t.start()
+        time.sleep(1)
 
 
     #send(packet, inter=0.005)
