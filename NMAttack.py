@@ -93,10 +93,10 @@ def subSweep(ip):
 # Higher Level Runners #
 def RunIPSweep(): 
     for i in range(40, 70):
-        for j in range(0, 55):
+        for j in range(0, 56):
             t=threading.Timer(0.05,subSweep,["192.168."+str(i)+"."+str(j)])
             t.start()
-        time.sleep(1)
+        time.sleep(2)
 
 
     #send(packet, inter=0.005)
