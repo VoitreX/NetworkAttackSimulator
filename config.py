@@ -1,5 +1,5 @@
 # Network Configuration File #
-targetIPDestination="192.168.66.14"
+targetIPDestination="192.168.62.60"
 SHORT_PAYLOAD="X"
 LONG_PAYLOAD="ABCDEFGX"
 ROUTER_MAC = "00:00:00:00:00:01"
